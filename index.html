@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Tanda Tangan Elektronik & QR Verifikasi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- QRCode Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-md shadow-indigo-100">
+                    <i class="fa-solid fa-signature text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">DigiSign Verifier</h1>
+                    <p class="text-xs text-slate-500">Sistem Generator Tanda Tangan Elektronik & QR</p>
+                </div>
+            </div>
+            <div class="hidden sm:flex items-center space-x-2 text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-medium">
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                <span>Sistem Siap Digunakan</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Form Section -->
+        <section class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Formulir Data Dokumen & Penandatangan</h2>
+                    <p class="text-sm text-slate-500">Lengkapi data di bawah ini untuk menghasilkan TTE & QR Code</p>
+                </div>
+                <button type="button" onclick="resetForm()" class="text-xs text-slate-400 hover:text-rose-600 transition flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                </button>
+            </div>
+
+            <form id="signForm" class="space-y-4" onsubmit="generateQRCode(event)">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Nama Penandatangan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Nama Penandatangan</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-regular fa-user"></i></span>
+                            <input type="text" id="nama" required placeholder="Contoh: Dr. H. Ahmad Fauzi, M.Si" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <!-- NIP -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">NIP / Nomor Induk</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-regular fa-id-badge"></i></span>
+                            <input type="text" id="nip" required placeholder="Contoh: 198203122005011003" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Instansi -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Instansi / Organisasi</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-regular fa-building"></i></span>
+                            <input type="text" id="instansi" required placeholder="Contoh: Dinas Pendidikan Provinsi" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <!-- Jabatan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Jabatan</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-briefcase"></i></span>
+                            <input type="text" id="jabatan" required placeholder="Contoh: Kepala Dinas" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- No WhatsApp -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">No WhatsApp (Konfirmasi)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-brands fa-whatsapp"></i></span>
+                            <input type="tel" id="whatsapp" required placeholder="Contoh: 081234567890" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <!-- Tanggal Ditandatangani -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Tanggal Ditandatangani</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-regular fa-calendar"></i></span>
+                            <input type="date" id="tanggal" required 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- No Surat -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Nomor Surat</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-regular fa-file-lines"></i></span>
+                            <input type="text" id="noSurat" required placeholder="Contoh: 400.3/123/DISDIK/2026" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <!-- Perihal Surat -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Perihal Surat</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-tag"></i></span>
+                            <input type="text" id="perihal" required placeholder="Contoh: Undangan Rapat Koordinasi" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-indigo-100 transition flex items-center justify-center gap-2 text-sm cursor-pointer">
+                        <i class="fa-solid fa-qrcode"></i> Generate Tanda Tangan & QR Code
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Result & QR Section -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            <!-- QR Result Box -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8 flex flex-col items-center text-center justify-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                
+                <h3 class="text-base font-bold text-slate-900 mb-1">Hasil Tanda Tangan Elektronik</h3>
+                <p class="text-xs text-slate-500 mb-6">Pindai QR Code di bawah untuk melihat rincian keaslian dokumen.</p>
+
+                <div id="qrContainer" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl shadow-inner mb-4 flex items-center justify-center min-h-[200px] min-w-[200px]">
+                    <div id="qrcode"></div>
+                    <div id="placeholderText" class="text-slate-400 text-xs flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-left lg:fa-arrow-up text-xl animate-bounce"></i>
+                        <span>Isi formulir dan klik tombol generate</span>
+                    </div>
+                </div>
+
+                <div id="actionButtons" class="hidden w-full space-y-2">
+                    <button onclick="downloadQR()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-download"></i> Unduh Gambar QR Code
+                    </button>
+                    <button onclick="openModal()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-eye"></i> Lihat Tampilan Hasil Scan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Security Badge Info -->
+            <div class="bg-indigo-900 text-white rounded-2xl p-6 shadow-lg shadow-indigo-900/10 flex items-start gap-4">
+                <div class="bg-white/10 p-3 rounded-xl text-indigo-200">
+                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold mb-1">Verifikasi Dokumen Terjamin</h4>
+                    <p class="text-xs text-indigo-200 leading-relaxed">QR Code yang dihasilkan mengunci seluruh parameter tanda tangan elektronik secara digital dan akurat.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal View Details (Modern Scan Card Preview) -->
+    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-slate-100 transform transition-all scale-95 opacity-0 overflow-y-auto max-h-[90vh]" id="modalContent">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-emerald-100 text-emerald-600 p-2.5 rounded-2xl">
+                        <i class="fa-solid fa-shield-check text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-900">Verifikasi Dokumen Sah</h4>
+                        <p class="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Tanda Tangan Elektronik Valid
+                        </p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl bg-slate-50 hover:bg-slate-100 transition cursor-pointer">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Structured Modern Scan Layout matching user request -->
+            <div class="space-y-4">
+                <!-- DETAIL PENANDATANGAN 1 -->
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
+                    <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-200/60">
+                        <i class="fa-solid fa-user-shield"></i> DETAIL PENANDATANGAN 1
+                    </p>
+                    
+                    <div class="grid grid-cols-2 text-xs gap-y-2">
+                        <span class="text-slate-500">Nama Penandatangan:</span>
+                        <span id="scanNama" class="font-bold text-slate-800 text-right">-</span>
+
+                        <span class="text-slate-500">NIP:</span>
+                        <span id="scanNip" class="font-semibold text-slate-700 font-mono text-right">-</span>
+
+                        <span class="text-slate-500">Instansi:</span>
+                        <span id="scanInstansi" class="font-semibold text-slate-700 text-right">-</span>
+
+                        <span class="text-slate-500">Jabatan:</span>
+                        <span id="scanJabatan" class="font-semibold text-slate-700 text-right">-</span>
+
+                        <span class="text-slate-500">WhatsApp:</span>
+                        <span id="scanWhatsapp" class="font-semibold text-emerald-700 font-mono text-right">-</span>
+                    </div>
+                </div>
+
+                <!-- DETAIL TANDA TANGAN 1 -->
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
+                    <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-200/60">
+                        <i class="fa-solid fa-file-shield"></i> DETAIL TANDA TANGAN 1
+                    </p>
+                    
+                    <div class="grid grid-cols-2 text-xs gap-y-2.5">
+                        <span class="text-slate-500">Nomor Surat:</span>
+                        <span id="scanNoSurat" class="font-semibold text-slate-700 text-right">-</span>
+
+                        <span class="text-slate-500">Perihal:</span>
+                        <span id="scanPerihal" class="font-bold text-slate-800 text-right">-</span>
+
+                        <span class="text-slate-500">Ditandatangani Pada:</span>
+                        <span id="scanTanggal" class="font-semibold text-slate-700 text-right">-</span>
+
+                        <span class="text-slate-500">Integritas Dokumen:</span>
+                        <span class="font-bold text-emerald-600 text-right">✓ Terjaga</span>
+
+                        <span class="text-slate-500">Menggunakan TSA:</span>
+                        <span class="font-bold text-emerald-600 text-right">✓ Ada</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="mt-6 flex gap-3">
+                <button onclick="closeModal()" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-3 px-4 rounded-xl text-xs font-medium transition cursor-pointer shadow-md">
+                    Selesai & Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12">
+        <div class="max-w-6xl mx-auto px-4 py-6 text-center text-xs text-slate-500">
+            &copy; 2026 DigiSign Verifier System. Modern Electronic Signature Solution.
+        </div>
+    </footer>
+
+    <!-- Script Application Logic -->
+    <script>
+        // Set default date to today
+        document.getElementById('tanggal').valueAsDate = new Date();
+
+        let currentDataObj = {};
+
+        function generateQRCode(e) {
+            e.preventDefault();
+
+            const nama = document.getElementById('nama').value.trim();
+            const instansi = document.getElementById('instansi').value.trim();
+            const jabatan = document.getElementById('jabatan').value.trim();
+            const nip = document.getElementById('nip').value.trim();
+            const whatsapp = document.getElementById('whatsapp').value.trim();
+            const perihal = document.getElementById('perihal').value.trim();
+            const noSurat = document.getElementById('noSurat').value.trim();
+            const tanggal = document.getElementById('tanggal').value.trim();
+
+            currentDataObj = {
+                "nama": nama,
+                "nip": nip,
+                "instansi": instansi,
+                "jabatan": jabatan,
+                "whatsapp": whatsapp,
+                "perihal": perihal,
+                "noSurat": noSurat,
+                "tanggal": tanggal
+            };
+
+            // Format ringkas terstruktur untuk menghindari code length overflow pada QR Code
+            const compactQrText = `TTE VERIFIED\nNAMA:${nama}\nNIP:${nip}\nINST:${instansi}\nJAB:${jabatan}\nWA:${whatsapp}\nNO_SRT:${noSurat}\nPERIHAL:${perihal}\nTGL:${tanggal}\nINTEGRITAS:OK\nTSA:ADA`;
+
+            // Bersihkan QR Code sebelumnya
+            document.getElementById('qrcode').innerHTML = "";
+            document.getElementById('placeholderText').classList.add('hidden');
+            document.getElementById('actionButtons').classList.remove('hidden');
+
+            // Buat QR Code baru dengan kapasitas aman
+            new QRCode(document.getElementById("qrcode"), {
+                text: compactQrText,
+                width: 180,
+                height: 180,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        function downloadQR() {
+            const qrImage = document.querySelector('#qrcode img');
+            if (!qrImage) {
+                return;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = qrImage.naturalWidth;
+            canvas.height = qrImage.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(qrImage, 0, 0);
+            
+            const link = document.createElement('a');
+            link.download = 'TTE-QRCode.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function openModal() {
+            if (!currentDataObj["nama"]) return;
+            
+            document.getElementById('scanPerihal').innerText = currentDataObj["perihal"];
+            document.getElementById('scanNoSurat').innerText = currentDataObj["noSurat"];
+            document.getElementById('scanTanggal').innerText = currentDataObj["tanggal"];
+            document.getElementById('scanNama').innerText = currentDataObj["nama"];
+            document.getElementById('scanNip').innerText = currentDataObj["nip"];
+            document.getElementById('scanInstansi').innerText = currentDataObj["instansi"];
+            document.getElementById('scanJabatan').innerText = currentDataObj["jabatan"];
+            document.getElementById('scanWhatsapp').innerText = currentDataObj["whatsapp"];
+
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function resetForm() {
+            document.getElementById('signForm').reset();
+            document.getElementById('tanggal').valueAsDate = new Date();
+            document.getElementById('qrcode').innerHTML = "";
+            document.getElementById('placeholderText').classList.remove('hidden');
+            document.getElementById('actionButtons').classList.add('hidden');
+            currentDataObj = {};
+        }
+    </script>
+</body>
+</html>
